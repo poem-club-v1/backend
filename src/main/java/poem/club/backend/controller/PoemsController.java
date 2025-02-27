@@ -1,10 +1,13 @@
 package poem.club.backend.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import poem.club.backend.entity.Poem;
+import poem.club.backend.service.PoemService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +17,8 @@ import java.util.Map;
 @RequestMapping("/api/v1/")
 public class PoemsController {
 
+    @Autowired
+    private PoemService poemService;
 
     @GetMapping("/movies")
     public List<String> getMovies(@AuthenticationPrincipal OAuth2User user) {
@@ -21,8 +26,8 @@ public class PoemsController {
     }
 
     @GetMapping("/poems")
-    public List<String> getPoems(@AuthenticationPrincipal OAuth2User user) {
-        return Arrays.asList("Poem 1", "Poem 2", "Poem 3", "Poem 4");
+    public List<Poem> getAllPoems() {
+        return poemService.getAllPoems();
     }
 
     @GetMapping("/profile")
