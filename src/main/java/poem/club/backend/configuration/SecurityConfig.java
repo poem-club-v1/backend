@@ -1,5 +1,7 @@
 package poem.club.backend.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -19,12 +21,16 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
+@EnableConfigurationProperties(FrontendPropertiesConfig.class)
 public class SecurityConfig {
+
+    @Autowired
+    private FrontendPropertiesConfig frontendPropertiesConfig;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5500"));  // Frontend React origin
+        configuration.setAllowedOrigins(frontendPropertiesConfig.getUrls());
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Content-Type", "Accept", "Authorization"));
         configuration.setAllowCredentials(true);
@@ -36,11 +42,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        String frontendUrl = frontendPropertiesConfig.getUrls().getFirst();
+
         return http
                 .authorizeHttpRequests(a -> a
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
-                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl("http://localhost:5500/index.html", true))
+                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl(frontendUrl + "/home", true))
                 .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(configurer -> configurer
@@ -49,7 +57,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                        .logoutSuccessUrl("/http://localhost:5500/index.html")
+                        .logoutSuccessUrl(frontendUrl)
                         .invalidateHttpSession(true)
                         .clearAuthentication(true))
                 .build();
