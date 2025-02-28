@@ -46,20 +46,27 @@ public class SecurityConfig {
 
         return http
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
-                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl(frontendUrl + "/home", true))
                 .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(configurer -> configurer
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .sessionManagement(configurer -> configurer
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl(frontendUrl)
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true))
                 .build();
+
+//        return http
+//                .authorizeHttpRequests(a -> a
+//                        .requestMatchers("/api/**").authenticated()
+//                        .anyRequest().permitAll())
+//                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl(frontendUrl + "/home", true))
+//                .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .exceptionHandling(configurer -> configurer
+//                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+//                .sessionManagement(configurer -> configurer
+//                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+//                .logout(logout -> logout
+//                        .logoutUrl("/logout")
+//                        .logoutSuccessUrl(frontendUrl)
+//                        .invalidateHttpSession(true)
+//                        .clearAuthentication(true))
+//                .build();
     }
 }
