@@ -59,20 +59,20 @@ public class PoemController {
             @RequestBody NewPoemDto newPoemDto,
             @AuthenticationPrincipal OAuth2User user) {
 
-        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
-
-        String email = user.getAttribute("email");
-        return poemService.addNewPoem(email, newPoemDto);
+//        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
+//
+//        String email = user.getAttribute("email");
+        return poemService.addNewPoem("dujemilic01@gmail.com", newPoemDto);
     }
 
-    @PostMapping()
+    @PostMapping("/like")
     public ResponseEntity<Boolean> likeOrUnlikePoem(
             @AuthenticationPrincipal OAuth2User user,
             @RequestBody PoemDto poemDto) {
-        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
-
-        String email = user.getAttribute("email");
-        return poemService.likeOrUnlike(email, poemDto);
+//        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
+//
+//        String email = user.getAttribute("email");
+        return poemService.likeOrUnlike("dojemiljak@gmail.com", poemDto);
     }
 
 //    @GetMapping("/profile")

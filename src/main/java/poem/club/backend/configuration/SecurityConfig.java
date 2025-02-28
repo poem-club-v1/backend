@@ -55,7 +55,7 @@ public class SecurityConfig {
 //                .authorizeHttpRequests(a -> a
 //                        .requestMatchers("/api/**").authenticated()
 //                        .anyRequest().permitAll())
-//                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl(frontendUrl + "/home", true))
+//                .oauth2Login(oauth2 -> oauth2.defaultSuccessUrl(frontendUrl + "/index.html", true))
 //                .cors(configurer -> configurer.configurationSource(corsConfigurationSource()))
 //                .csrf(AbstractHttpConfigurer::disable)
 //                .exceptionHandling(configurer -> configurer
@@ -64,7 +64,7 @@ public class SecurityConfig {
 //                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
 //                .logout(logout -> logout
 //                        .logoutUrl("/logout")
-//                        .logoutSuccessUrl(frontendUrl)
+//                        .logoutSuccessUrl(frontendUrl + "/index.html")
 //                        .invalidateHttpSession(true)
 //                        .clearAuthentication(true))
 //                .build();

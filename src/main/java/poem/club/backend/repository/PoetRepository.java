@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface PoetRepository extends JpaRepository<Poet, Long> {
     Optional<Poet> findByEmail(String email);
+
+    boolean existsByUsername(String name);
 }
