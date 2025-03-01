@@ -25,9 +25,9 @@ public class PoetController {
 
     @PostMapping("/username")
     public ResponseEntity<PoetDto> changeUsername(@AuthenticationPrincipal OAuth2User user, @RequestBody String username) {
-//        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
-//
-//        String email = user.getAttribute("email");
-        return poetService.changeUsername("dujemilic01@gmail.com", username);
+        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
+
+        String email = user.getAttribute("email");
+        return poetService.changeUsername(email, username);
     }
 }

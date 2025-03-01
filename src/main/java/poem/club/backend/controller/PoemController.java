@@ -43,7 +43,6 @@ public class PoemController {
 
         String email = user.getAttribute("email");
         return poemService.getUserLikedPoems(email);
-//        return poemService.getUserLikedPoems("dickinson@email.com");
     }
 
     @GetMapping("/myPoems")
@@ -59,27 +58,19 @@ public class PoemController {
             @RequestBody NewPoemDto newPoemDto,
             @AuthenticationPrincipal OAuth2User user) {
 
-//        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
-//
-//        String email = user.getAttribute("email");
-        return poemService.addNewPoem("dujemilic01@gmail.com", newPoemDto);
+        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
+
+        String email = user.getAttribute("email");
+        return poemService.addNewPoem(email, newPoemDto);
     }
 
     @PostMapping("/like")
     public ResponseEntity<Boolean> likeOrUnlikePoem(
             @AuthenticationPrincipal OAuth2User user,
             @RequestBody PoemDto poemDto) {
-//        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
-//
-//        String email = user.getAttribute("email");
-        return poemService.likeOrUnlike("dojemiljak@gmail.com", poemDto);
-    }
+        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
 
-//    @GetMapping("/profile")
-//    public Map<String, Object> getProfile(@AuthenticationPrincipal OAuth2User user) {
-//        return Map.of(
-//                "name", user.getAttribute("name"),
-//                "email", user.getAttribute("email")
-//        );
-//    }
+        String email = user.getAttribute("email");
+        return poemService.likeOrUnlike(email, poemDto);
+    }
 }
