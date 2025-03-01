@@ -2,8 +2,8 @@ import psycopg2
 import requests
 import sys
 
-DB_URL=""
-HUGGINGFACE_API_KEY=""
+DB_URL="postgresql://poem_club_user:jrZFU34WdLpGF56oTKWsLNSxq0Tz0KDt@dpg-cuqquaa3esus739rt0bg-a.frankfurt-postgres.render.com/poem_club"
+HUGGINGFACE_API_KEY="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"
 
 API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-mnli"
 HEADERS = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}

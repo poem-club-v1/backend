@@ -1,16 +1,22 @@
 package poem.club.backend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import poem.club.backend.dto.NewPoemDto;
 import poem.club.backend.dto.PoemDto;
+import poem.club.backend.entity.Category;
 import poem.club.backend.entity.Poem;
 import poem.club.backend.entity.Poet;
+import poem.club.backend.repository.CategoryRepository;
 import poem.club.backend.repository.PoemRepository;
 import poem.club.backend.repository.PoetRepository;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +30,9 @@ public class PoemService {
 
     @Autowired
     private PoetRepository poetRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     public PoemDto toDto(Poem poem) {
         return new PoemDto(
@@ -101,6 +110,42 @@ public class PoemService {
         newPoem.setAuthor(poet);
 
         Poem savedPoem = poemRepository.save(newPoem);
+
+        try {
+            String scriptPath = new ClassPathResource("scripts/classify_poems.py").getFile().getAbsolutePath();
+
+            String[] command = {
+                    "python",
+                    scriptPath,
+                    savedPoem.getTitle(),  // Pass poem title
+                    savedPoem.getContent() // Pass poem content
+            };
+
+            // Execute Python script
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            Process process = processBuilder.start();
+
+            // Capture the output of the Python script (the category name)
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String category = reader.readLine();
+
+            // Handle the output (category) and update the poem with the category
+            if (category != null) {
+                Optional<Category> categoryOptional = categoryRepository.findByName(category);
+                if (categoryOptional.isPresent()) {
+                    savedPoem.setCategory(categoryOptional.get());
+                    poemRepository.save(savedPoem);
+                }
+            }
+
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.out.println("Error in Python script execution.");
+            }
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return new ResponseEntity<>(toDto(savedPoem), HttpStatus.CREATED);
     }

@@ -58,10 +58,11 @@ public class PoemController {
             @RequestBody NewPoemDto newPoemDto,
             @AuthenticationPrincipal OAuth2User user) {
 
-        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
-
-        String email = user.getAttribute("email");
-        return poemService.addNewPoem(email, newPoemDto);
+//        if (user == null) { return new ResponseEntity<>(HttpStatus.UNAUTHORIZED); }
+//
+//        String email = user.getAttribute("email");
+//        return poemService.addNewPoem(email, newPoemDto);
+        return poemService.addNewPoem("dojemiljak@gmail.com", newPoemDto);
     }
 
     @PostMapping("/like")
