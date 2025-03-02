@@ -23,6 +23,10 @@ public class Poem {
     private Category category;
 
     @ManyToOne
+    @JoinColumn(name = "language_id")
+    private Language language;
+
+    @ManyToOne
     @JoinColumn(name = "author_id")
     private Poet author;
 
@@ -86,6 +90,10 @@ public class Poem {
     public void setCategory(Category category) {
         this.category = category;
     }
+
+    public Language getLanguage() { return language; }
+
+    public void setLanguage(Language language) { this.language = language; }
 
     public Poet getAuthor() {
         return author;

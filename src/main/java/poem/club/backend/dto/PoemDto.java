@@ -13,15 +13,17 @@ public class PoemDto {
     private Date dateCreated;
     private int numberOfLikes;
     private String categoryName;
+    private String languageName;
     private String authorUsername;
 
-    public PoemDto(Long id, String title, String content, Date dateCreated, int numberOfLikes, String categoryName, String authorUsername) {
+    public PoemDto(Long id, String title, String content, Date dateCreated, int numberOfLikes, String categoryName, String languageName, String authorUsername) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.dateCreated = dateCreated;
         this.numberOfLikes = numberOfLikes;
         this.categoryName = categoryName;
+        this.languageName = languageName;
         this.authorUsername = authorUsername;
     }
 
@@ -74,6 +76,14 @@ public class PoemDto {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public String getLanguageName() {
+        return languageName;
+    }
+
+    public void setLanguageName(String languageName) {
+        this.languageName = languageName;
     }
 
     public String getAuthorUsername() {

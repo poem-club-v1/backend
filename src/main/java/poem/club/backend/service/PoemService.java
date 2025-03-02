@@ -1,6 +1,8 @@
 package poem.club.backend.service;
 
+import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +10,11 @@ import org.springframework.stereotype.Service;
 import poem.club.backend.dto.NewPoemDto;
 import poem.club.backend.dto.PoemDto;
 import poem.club.backend.entity.Category;
+import poem.club.backend.entity.Language;
 import poem.club.backend.entity.Poem;
 import poem.club.backend.entity.Poet;
 import poem.club.backend.repository.CategoryRepository;
+import poem.club.backend.repository.LanguageRepository;
 import poem.club.backend.repository.PoemRepository;
 import poem.club.backend.repository.PoetRepository;
 
@@ -34,6 +38,15 @@ public class PoemService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private LanguageRepository languageRepository;
+
+    @Value("${db.url}")
+    private String dbUrl;
+
+    @Value("${huggingface.api.key}")
+    private String huggingfaceApiKey;
+
     public PoemDto toDto(Poem poem) {
         return new PoemDto(
                 poem.getId(),
@@ -42,6 +55,7 @@ public class PoemService {
                 poem.getDateCreated(),
                 poem.getNumberOfLikes(),
                 poem.getCategory() != null ? poem.getCategory().getName() : null,
+                poem.getLanguage() != null ? poem.getLanguage().getName() : null,
                 poem.getAuthor() != null ? poem.getAuthor().getUsername() : null
         );
     }
@@ -95,17 +109,16 @@ public class PoemService {
     }
 
     public ResponseEntity<PoemDto> addNewPoem(String email, NewPoemDto newPoemDto) {
-
         Poem newPoem = new Poem();
         newPoem.setTitle(newPoemDto.getTitle());
         newPoem.setContent(newPoemDto.getContent());
-
         newPoem.setDateCreated(new Date());
         newPoem.setNumberOfLikes(0);
         newPoem.setCategory(null);
+        newPoem.setLanguage(null);
 
         Optional<Poet> poetOptional = poetRepository.findByEmail(email);
-        if (poetOptional.isEmpty()) { return new ResponseEntity<>(HttpStatus.NOT_FOUND);  }
+        if (poetOptional.isEmpty()) { return new ResponseEntity<>(HttpStatus.NOT_FOUND); }
         Poet poet = poetOptional.get();
         newPoem.setAuthor(poet);
 
@@ -117,25 +130,33 @@ public class PoemService {
             String[] command = {
                     "python",
                     scriptPath,
-                    savedPoem.getTitle(),  // Pass poem title
-                    savedPoem.getContent() // Pass poem content
+                    savedPoem.getTitle(),
+                    savedPoem.getContent()
             };
 
-            // Execute Python script
             ProcessBuilder processBuilder = new ProcessBuilder(command);
+
+            // Pass secrets as environment variables
+            processBuilder.environment().put("DB_URL", dbUrl);
+            processBuilder.environment().put("HUGGINGFACE_API_KEY", huggingfaceApiKey);
+
             Process process = processBuilder.start();
 
-            // Capture the output of the Python script (the category name)
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String category = reader.readLine();
+            String output = reader.readLine();
 
-            // Handle the output (category) and update the poem with the category
-            if (category != null) {
+            if (output != null && output.contains("|")) {
+                String[] results = output.split("\\|");
+                String category = results[0].trim();
+                String language = results[1].trim();
+
                 Optional<Category> categoryOptional = categoryRepository.findByName(category);
-                if (categoryOptional.isPresent()) {
-                    savedPoem.setCategory(categoryOptional.get());
-                    poemRepository.save(savedPoem);
-                }
+                categoryOptional.ifPresent(savedPoem::setCategory);
+
+                Optional<Language> languageOptional = languageRepository.findByName(language);
+                languageOptional.ifPresent(savedPoem::setLanguage);
+
+                poemRepository.save(savedPoem);
             }
 
             int exitCode = process.waitFor();
