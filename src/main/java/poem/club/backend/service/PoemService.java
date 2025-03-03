@@ -4,6 +4,7 @@ import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import poem.club.backend.repository.PoetRepository;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -66,12 +68,6 @@ public class PoemService {
                 .collect(Collectors.toList());
     }
 
-    public ResponseEntity<List<PoemDto>> getPoems() {
-
-        List<Poem> poems = poemRepository.findAll();
-        return new ResponseEntity<>(toDtoList(poems), HttpStatus.OK);
-    }
-
     public ResponseEntity<List<PoemDto>> getFanFavouritePoems() {
 
         List<Poem> topPoems = poemRepository.findTop20ByOrderByNumberOfLikesDesc();
@@ -106,6 +102,25 @@ public class PoemService {
         List<Poem> writtenPoems = poet.getPoems();
 
         return new ResponseEntity<>(toDtoList(writtenPoems), HttpStatus.OK);
+    }
+
+    public ResponseEntity<List<PoemDto>> getFilteredPoems(String sortBy, String order, String category, String language, String author) {
+        List<Poem> poems = poemRepository.findFilteredPoems(category, language, author);
+
+        if (sortBy != null) {
+            Comparator<Poem> comparator = switch (sortBy) {
+                case "number_of_likes" -> Comparator.comparing(Poem::getNumberOfLikes);
+                default -> Comparator.comparing(Poem::getTitle);
+            };
+
+            if ("desc".equalsIgnoreCase(order)) {
+                comparator = comparator.reversed();
+            }
+
+            poems.sort(comparator);
+        }
+
+        return new ResponseEntity<>(toDtoList(poems), HttpStatus.OK);
     }
 
     public ResponseEntity<PoemDto> addNewPoem(String email, NewPoemDto newPoemDto) {

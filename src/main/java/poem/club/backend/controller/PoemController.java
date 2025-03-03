@@ -22,11 +22,6 @@ public class PoemController {
     @Autowired
     private PoemService poemService;
 
-    @GetMapping
-    public ResponseEntity<List<PoemDto>> getPoems() {
-        return poemService.getPoems();
-    }
-
     @GetMapping("/fanFavourite")
     public ResponseEntity<List<PoemDto>> getFanFavouritePoems() {
         return poemService.getFanFavouritePoems();
@@ -51,6 +46,17 @@ public class PoemController {
 
         String email = user.getAttribute("email");
         return poemService.getUserPoems(email);
+    }
+
+    @GetMapping("")
+    public ResponseEntity<List<PoemDto>> getFilteredPoems(
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String order,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String language,
+            @RequestParam(required = false) String author
+    ) {
+        return poemService.getFilteredPoems(sortBy, order, category, language, author);
     }
 
     @PostMapping("/addNewPoem")
